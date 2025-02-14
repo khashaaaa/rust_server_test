@@ -1,4 +1,5 @@
-let server_address = "127.0.0.1:8080";
+-- Test configuration
+local base_url = "http://localhost:8080/users"
 
 local first_names = {"Emma", "Liam", "Olivia", "Noah", "Ava", "Oliver", "Isabella", "Lucas", "Sophia", "Mason"}
 local last_names = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"}
@@ -9,7 +10,7 @@ local success_counter = 0
 local error_counter = 0
 local start_time = 0
 
-function generate_user_data()
+local function generate_user_data()
     local first_name = first_names[math.random(#first_names)]
     local last_name = last_names[math.random(#last_names)]
     local domain = domains[math.random(#domains)]
@@ -27,12 +28,12 @@ function generate_user_data()
         email)
 end
 
-init = function(args)
+function init(args)
     start_time = os.time()
     math.randomseed(os.time())
 end
 
-request = function()
+function request()
     local method = math.random(1, 100)
     local headers = {
         ["Content-Type"] = "application/json",
@@ -63,7 +64,7 @@ request = function()
     end
 end
 
-response = function(status, headers, body)
+function response(status, headers, body)
     if status == 200 or status == 201 then
         success_counter = success_counter + 1
     else
@@ -71,7 +72,7 @@ response = function(status, headers, body)
     end
 end
 
-done = function(summary, latency, requests)
+function done(summary, latency, requests)
     local duration = os.time() - start_time
     local rps = duration > 0 and request_counter/duration or 0
     
