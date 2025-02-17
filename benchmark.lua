@@ -1,5 +1,4 @@
--- Test configuration
-local base_url = "http://localhost:8080/users"
+local base_url = "http://localhost:8081"
 
 local first_names = {"Emma", "Liam", "Olivia", "Noah", "Ava", "Oliver", "Isabella", "Lucas", "Sophia", "Mason"}
 local last_names = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"}
@@ -16,16 +15,9 @@ local function generate_user_data()
     local domain = domains[math.random(#domains)]
     
     request_counter = request_counter + 1
-    local email = string.format("%s.%s.%d@%s", 
-        string.lower(first_name),
-        string.lower(last_name),
-        request_counter,
-        domain)
+    local email = string.format("%s.%s.%d@%s", string.lower(first_name), string.lower(last_name), request_counter, domain)
     
-    return string.format('{"name":"%s %s", "email":"%s"}',
-        first_name,
-        last_name,
-        email)
+    return string.format('{"name":"%s %s", "email":"%s"}', first_name, last_name, email)
 end
 
 function init(args)
@@ -35,29 +27,22 @@ end
 
 function request()
     local method = math.random(1, 100)
-    local headers = {
-        ["Content-Type"] = "application/json",
-        ["Accept"] = "application/json"
-    }
+    local headers = { ["Content-Type"] = "application/json", ["Accept"] = "application/json" }
     
-    -- 40% GET all users
     if method <= 40 then
         return wrk.format("GET", base_url, headers)
     
-    -- 40% POST new user
     elseif method <= 80 then
         local payload = generate_user_data()
         headers["Content-Length"] = #payload
         return wrk.format("POST", base_url .. "/create", headers, payload)
     
-    -- 10% PUT update user
     elseif method <= 90 then
         local user_id = math.random(1, 100)
         local payload = generate_user_data()
         headers["Content-Length"] = #payload
         return wrk.format("PUT", base_url .. "/" .. user_id .. "/update", headers, payload)
     
-    -- 10% DELETE user
     else
         local user_id = math.random(1, 100)
         return wrk.format("DELETE", base_url .. "/" .. user_id .. "/delete", headers)
@@ -84,8 +69,4 @@ function done(summary, latency, requests)
     print(string.format("Requests/sec: %.2f", rps))
     print(string.format("Average Latency: %.2fms", latency.mean/1000))
     print(string.format("Max Latency: %.2fms", latency.max/1000))
-    print(string.format("50th percentile: %.2fms", latency:percentile(50)/1000))
-    print(string.format("90th percentile: %.2fms", latency:percentile(90)/1000))
-    print(string.format("99th percentile: %.2fms", latency:percentile(99)/1000))
-    print("==================\n")
 end

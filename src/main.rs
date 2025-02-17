@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-    let server_address = "127.0.0.1:8080";
+    let server_address = "127.0.0.1:8081";
     println!("Server starting at http://{}", server_address);
 
     HttpServer::new(move || {
