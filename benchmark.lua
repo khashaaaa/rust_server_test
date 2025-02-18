@@ -1,7 +1,6 @@
 local base_url = "http://localhost:8081"
 
-local first_names = {"Emma", "Liam", "Olivia", "Noah", "Ava", "Oliver", "Isabella", "Lucas", "Sophia", "Mason"}
-local last_names = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"}
+local names = {"Emma", "Liam", "Olivia", "Noah", "Ava", "Oliver", "Isabella", "Lucas", "Sophia", "Mason"}
 local domains = {"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "example.com"}
 
 local request_counter = 0
@@ -10,14 +9,13 @@ local error_counter = 0
 local start_time = 0
 
 local function generate_user_data()
-    local first_name = first_names[math.random(#first_names)]
-    local last_name = last_names[math.random(#last_names)]
+    local name = names[math.random(#names)]
     local domain = domains[math.random(#domains)]
     
     request_counter = request_counter + 1
-    local email = string.format("%s.%s.%d@%s", string.lower(first_name), string.lower(last_name), request_counter, domain)
+    local email = string.format("%s.%d@%s", string.lower(name), request_counter, domain)
     
-    return string.format('{"name":"%s %s", "email":"%s"}', first_name, last_name, email)
+    return string.format('{"name":"%s", "email":"%s"}', name, email)
 end
 
 function init(args)
@@ -55,18 +53,4 @@ function response(status, headers, body)
     else
         error_counter = error_counter + 1
     end
-end
-
-function done(summary, latency, requests)
-    local duration = os.time() - start_time
-    local rps = duration > 0 and request_counter/duration or 0
-    
-    print("\n=== Test Results ===")
-    print(string.format("Duration: %d seconds", duration))
-    print(string.format("Total Requests: %d", request_counter))
-    print(string.format("Successful Requests: %d", success_counter))
-    print(string.format("Failed Requests: %d", error_counter))
-    print(string.format("Requests/sec: %.2f", rps))
-    print(string.format("Average Latency: %.2fms", latency.mean/1000))
-    print(string.format("Max Latency: %.2fms", latency.max/1000))
 end
